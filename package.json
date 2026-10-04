@@ -1,0 +1,15 @@
+{
+  "name": "gibbmeoverlay",
+  "version": "0.0.1",
+  "description": "Light weight app for localhosting livestream overlays from HTML with different services integration",
+  "license": "LGPL-3.0-or-later",
+  "author": "GibbDev",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}
