@@ -1,0 +1,12 @@
+@font-face {
+	font-family: JetBrains;
+	src: url(../fonts/JetBrainsMono-Regular.ttf);
+}
+
+:root {
+	--var-color-theme-dark-bg-darkest: #1d2021;
+	--var-color-theme-dark-bg-dark: #282828;
+	--var-color-theme-dark-text-accent: #ebdbb2;
+	--var-color-theme-dark-text: #a89984;
+	--var-font-main: "JetBrains";
+}
