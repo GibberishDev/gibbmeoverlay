@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>GibbMeOverlay</title>
+	<style>
+		body{background:#000;color:#ff0;margin:0;}
+	</style>
+</head>
+<body>
+	
+</body>
+<script defer>
+	const params = new URL(location).searchParams;
+	const DEBUG = params.get("debug") || false;
+	const HOST = params.get("host") || "127.0.0.1";
+	const WSHOST = params.get("wshost") || "127.0.0.1";
+	const PORT = params.get("port") || "10301";
+	const WSPORT = params.get("wsport") || "10302";
+	var ws = null
+
+	document.body.innerHTML = "status: trying to connect...";
+
+	function waitForOverlay() {
+		fetch(`http://${HOST}:${PORT}/api/state`,{method:"GET",mode:"no-cors"})
+			.then(response => {
+				attemptConnection()
+			})
+			.catch(() => {
+				document.body.innerHTML = "Reconnecting..."
+				setTimeout(waitForOverlay, 1000);
+			});
+	};
+	waitForOverlay()
+	function attemptConnection() {
+		fetch(`http://${HOST}:${PORT}/api/state`)
+		.then(resp=>{
+			if (resp.ok) {initConnected()}
+			else setTimeout(waitForOverlay, 1000);
+		})
+	}
+	function initConnected() {
+		document.body.innerHTML = "Connected"
+		ws = new WebSocket(`ws://${WSHOST}:${WSPORT}`)
+		ws.onopen = () => {
+			document.body.innerHTML = "Connected"
+			console.log("websocket connected")
+		}
+		ws.onclose = (code, reason) => {
+			console.log(`websocket closed. code: ${code} - reason: ${reason}`)
+			document.body.innerHTML = "Disconnected... Reconnecting..."
+			setTimeout(waitForOverlay, 1000);
+			ws = null
+		}
+	}
+</script>
+</html>
