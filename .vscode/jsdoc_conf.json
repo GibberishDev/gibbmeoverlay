@@ -1,0 +1,14 @@
+{
+	"$schema": "https://jsontools.tools/schemas/data/jsdoc.json",
+	"source": {
+		"include": [
+			"src/",
+			"index.js",
+			"overlays/template"
+		]
+	},
+	"opts": {
+		"destination": "jsdoc",
+		"readme": "README.MD"
+	}
+}
