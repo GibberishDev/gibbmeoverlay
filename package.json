@@ -13,6 +13,7 @@
     "electron": "^44.5.1"
   },
   "dependencies": {
+    "tmi.js": "^1.8.5",
     "ws": "^8.22.0"
   }
 }

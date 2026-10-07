@@ -1,9 +1,4 @@
 const { app, BrowserWindow } = require('electron')
-const WS = require("ws")
-const http = require("http")
-
-var wss = null
-var webSocket = null
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -48,8 +43,8 @@ function handleWebsocket(data) {
         console.log("Overlay connected event")
         wss.clients.forEach((client) => {
           client.send(JSON.stringify({
-            type: "MSG",
-            message: "AAAA"
+            type: "HANDSHAKE",
+            message: "complete"
           }))
         })
       }

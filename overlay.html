@@ -6,10 +6,10 @@
 	<title>GibbMeOverlay</title>
 	<style>
 		body{background:#000;color:#ff0;margin:0;}
+		iframe{margin:0;}
 	</style>
 </head>
 <body>
-	
 </body>
 <script defer>
 	const params = new URL(location).searchParams;
@@ -19,8 +19,7 @@
 	const PORT = params.get("port") || "10301";
 	const WSPORT = params.get("wsport") || "10302";
 	var ws = null
-
-	document.body.innerHTML = "status: trying to connect...";
+	var uuid = null
 
 	function waitForOverlay() {
 		fetch(`http://${HOST}:${PORT}/api/state`,{method:"GET",mode:"no-cors"})
@@ -28,7 +27,6 @@
 				attemptConnection()
 			})
 			.catch(() => {
-				document.body.innerHTML = "Reconnecting..."
 				setTimeout(waitForOverlay, 1000);
 			});
 	};
@@ -41,18 +39,27 @@
 		})
 	}
 	function initConnected() {
-		document.body.innerHTML = "Connected"
 		ws = new WebSocket(`ws://${WSHOST}:${WSPORT}`)
 		ws.onopen = () => {
-			document.body.innerHTML = "Connected"
 			console.log("websocket connected")
+			ws.send(JSON.stringify({
+				type: "HANDSHAKE",
+				id: getUUID()
+			}))
 		}
 		ws.onclose = (code, reason) => {
 			console.log(`websocket closed. code: ${code} - reason: ${reason}`)
-			document.body.innerHTML = "Disconnected... Reconnecting..."
 			setTimeout(waitForOverlay, 1000);
 			ws = null
 		}
+		ws.onmessage = handleWebSocketMessage
+	}
+	function handleWebSocketMessage(data) {
+		console.log(data)
+	}
+	function getUUID() {
+		uuid = crypto.randomUUID()
+		return uuid
 	}
 </script>
 </html>
