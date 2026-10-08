@@ -13,16 +13,18 @@
 </body>
 <script defer>
 	const params = new URL(location).searchParams;
-	const DEBUG = params.get("debug") || false;
-	const HOST = params.get("host") || "127.0.0.1";
-	const WSHOST = params.get("wshost") || "127.0.0.1";
 	const PORT = params.get("port") || "10301";
 	const WSPORT = params.get("wsport") || "10302";
+	const ID = params.get("id")
 	var ws = null
 	var uuid = null
 
 	function waitForOverlay() {
-		fetch(`http://${HOST}:${PORT}/api/state`,{method:"GET",mode:"no-cors"})
+		if (ID == null) {
+			document.body.innerHTML = "NO OVERLAY ID IN URL. ABORTING"
+			return
+		}
+		fetch(`http://127.0.0.1:${PORT}/api/state`,{method:"GET",mode:"no-cors"})
 			.then(response => {
 				attemptConnection()
 			})
@@ -30,25 +32,24 @@
 				setTimeout(waitForOverlay, 1000);
 			});
 	};
-	waitForOverlay()
 	function attemptConnection() {
-		fetch(`http://${HOST}:${PORT}/api/state`)
+		fetch(`http://127.0.0.1:${PORT}/api/state`)
 		.then(resp=>{
 			if (resp.ok) {initConnected()}
 			else setTimeout(waitForOverlay, 1000);
 		})
 	}
 	function initConnected() {
-		ws = new WebSocket(`ws://${WSHOST}:${WSPORT}`)
+		ws = new WebSocket(`ws://127.0.0.1:${WSPORT}`)
 		ws.onopen = () => {
 			console.log("websocket connected")
 			ws.send(JSON.stringify({
 				type: "HANDSHAKE",
-				id: getUUID()
+				id: ID
 			}))
 		}
 		ws.onclose = (code, reason) => {
-			console.log(`websocket closed. code: ${code} - reason: ${reason}`)
+			console.log(`websocket disconnected`)
 			setTimeout(waitForOverlay, 1000);
 			ws = null
 		}
@@ -57,9 +58,8 @@
 	function handleWebSocketMessage(data) {
 		console.log(data)
 	}
-	function getUUID() {
-		uuid = crypto.randomUUID()
-		return uuid
-	}
+
+	waitForOverlay()
+
 </script>
 </html>
