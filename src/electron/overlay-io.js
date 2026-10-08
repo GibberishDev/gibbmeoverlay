@@ -31,14 +31,11 @@ export function startWebSocketServer() {
 		host:"127.0.0.1",
 		port: 10302//settings get ws port
 	})
-	LOGGER.log(`Started WebSocket server at "127.0.0.1":${10302}`)
+	LOGGER.log(`Started WebSocket server at "127.0.0.1":${10302}`, "WebSocket")
 	wss.on("connection",(client)=>{
 		unconfirmedClients.push(client)
 		client.on("message", (data)=>{
 			handleWebsocketMessage(client, data)
-		})
-		client.on("close", (client, code, reason)=>{
-			handleClientDisconnected(client, code, reason)
 		})
 	})
 	server = http.createServer((req, res) => {
@@ -48,7 +45,7 @@ export function startWebSocketServer() {
 			res.end(JSON.stringify({}))
 		}
 	})
-	LOGGER.log(`Hosted http api endpoint at "127.0.0.1":${10301}/api/state`)
+	LOGGER.log(`Hosted http api endpoint at "127.0.0.1":${10301}/api/state`, "HTTP Server")
 	server.listen(10301, "127.0.0.1")
 }
 
@@ -62,6 +59,9 @@ function handleWebsocketMessage(client, data) {
 				"clients":[client]
 			}
 		}
+		client.on("close",(client, code, reason)=>{
+			handleClientDisconnected(data.id, client, code, reason)
+		})
 		unconfirmedClients.splice(unconfirmedClients.indexOf(client),1)
 		sendToOverlay(JSON.stringify({
 				type: OVERLAY_MESSAGE_TYPES.HANDSHAKE,
@@ -71,15 +71,20 @@ function handleWebsocketMessage(client, data) {
 		// 		type: OVERLAY_MESSAGE_TYPES.HANDSHAKE,
 		// 		message: "complete"
 		// 	}))
-  		LOGGER.log(`New client for ${data.id} registered`)
+  		LOGGER.log(`New client registered for overlay with id "${data.id}"`, "WebSocket")
 	} else {
 
 	}
 }
 
-function handleClientDisconnected(client, code, reason) {
-	LOGGER.log(`Client ${overlays[client].id} disconnected with code: ${code}`)
-	delete overlays[client]
+function handleClientDisconnected(id, client, code, reason) {
+	LOGGER.log(`Client for overlay with id "${id}" disconnected with code: ${code}`, "WebSocket")
+	overlays[id].clients.splice(overlays[id].clients.indexOf(client))
+	if (overlays[id].clients.length == 0) {
+		delete overlays[id]
+		LOGGER.log(`No active clients left for overlay with id: ${id}`, "WebSocket")
+	}
+	console.log(LOGGER.getHistory())
 }
 
 export function sendToOverlay(data, overlayID, replyExpected = false) {
@@ -89,7 +94,7 @@ export function sendToOverlay(data, overlayID, replyExpected = false) {
 			client.send(data)
 		})
 	} else {
-		console.warn(`No overlays with uuid "${overlayID}" are currently active`)
+		console.warn(`No overlays with uuid "${overlayID}" are currently active`, "WebSocket")
 	}
 
 }

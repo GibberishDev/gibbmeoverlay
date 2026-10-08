@@ -1,5 +1,7 @@
 /** @namespace GibbLogger */
 
+export let registeredLoggers = []
+
 export class GibbLogger {
 
 	namespace = ""
@@ -7,6 +9,7 @@ export class GibbLogger {
 
 	constructor(namespace) {
 		this.namespace = namespace
+		registeredLoggers.push(this)
 	}
 	log(message,marker="") {
 		if (message == "") return;
@@ -26,6 +29,9 @@ export class GibbLogger {
 	clear() {
 		this.loggerHistory.clear()
 	}
+	getHistory() {
+		return this.loggerHistory
+	}
 }
 
 function getTimeString() {
@@ -34,13 +40,18 @@ function getTimeString() {
 }
 
 class Message {
-	type=""
+	type="log"
 	text = ""
 	marker = ""
-	timestamp = ""
-	constructor(text, marker, timestamp, type="log") {
+	timestamp = 0
+	readableTime = ""
+	constructor(text, marker, readableTime, type="log") {
 		this.text = text
 		this.marker = marker
-		this.timestamp = timestamp
+		this.timestamp = new Date().getTime()
+		this.type = type
+		this.readableTime = readableTime
 	}
 }
+
+export function getRegisteredLoggers() {return registeredLoggers}

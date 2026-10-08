@@ -7,12 +7,14 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron --trace-warnings ."
   },
   "devDependencies": {
     "electron": "^44.5.1"
   },
   "dependencies": {
+    "fourier-transform": "^2.5.1",
+    "loopback-capture": "^3.0.2",
     "tmi.js": "^1.8.5",
     "ws": "^8.22.0",
     "youtube-chat": "^2.2.0"
