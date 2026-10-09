@@ -9,7 +9,7 @@
 
 	<title>GibbMeOverlay</title>
 </head>
-<body style="background: black;">
+<body style="background: black;margin: 0;">
 	<!-- <div id="app-structure-content-wrapper"></div> -->
 	<!-- <div id="app-structure-statusbar"></div> -->
 	<canvas id="test" width="1024" height="900"></canvas>
@@ -17,22 +17,22 @@
 		var lastSpectrum = {}
 		let canvas = document.getElementById("test") 
 		let ctx = canvas.getContext("2d")
+		let width = 4
 		window.audio.onSpectrum((spectrum)=>{
 			lastSpectrum = spectrum
-			ctx.clearRect(0,0,1024,900)
+			canvas.width = viewport.segments[0].width - 4
+			canvas.height = viewport.segments[0].height - 4
+			ctx.clearRect(0,0,canvas.getBoundingClientRect().width,canvas.getBoundingClientRect().height)
 			var i = 0
-			for (let k in spectrum){
-				let vol = spectrum[k].val
-				if (i==0) console.log(vol)
+			for (let mag of spectrum.nm){
+			// 	let vol = spectrum[k].val
 				ctx.fillStyle = "white"
-				// ctx.fillStyle = spectrum[k].color
-				ctx.fillRect(0,i*6,vol*canvas.getBoundingClientRect().width*20,4)
-				// ctx.fillText(`I:${i} - freq: ${k} - lf: ${spectrum[k].lf.toFixed(2)} - hf: ${spectrum[k].hf.toFixed(2)}${spectrum[k].af?" - af: "+spectrum[k].af:""}`,vol*canvas.getBoundingClientRect().width*20, i*16+8)
-				ctx.fillText(`I: ${i}`,vol*canvas.getBoundingClientRect().width*20, i*6+3)
+			// 	// ctx.fillStyle = spectrum[k].color
+				ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),4,width,mag*canvas.getBoundingClientRect().height)
+				// ctx.fillText(`I:${i} - freq: ${k} - lf: ${spectrum[k].lf.toFixed(2)} - hf: ${spectrum[k].hf.toFixed(2)}${spectrum[k].af?" - af: "+spectrum[k].af:""}`,vol*canvas.getBoundingClientRect().width/5, i*8+8)
+			// 	// ctx.fillText(`I: ${i}`,vol*canvas.getBoundingClientRect().width*20, i*8+4)
 				i++
 			}
-			Object.keys(spectrum).forEach((freq)=>{
-			})
 		})
 	</script>
 </body>
