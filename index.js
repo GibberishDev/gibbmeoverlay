@@ -3,7 +3,7 @@ import {startWebSocketServer} from "./src/electron/overlay-io.js"
 import { GibbLogger } from './src/electron/logger.js'
 import loopback from "loopback-capture"
 import { fileURLToPath } from 'url'
-import { createCQT } from './src/electron/cqt.js'
+import { CQT } from './src/electron/cqt.js'
 
 const LOGGER = new GibbLogger("GibbMeOverlay")
 const capture = new loopback.LoopbackCapture()
@@ -25,13 +25,13 @@ const createWindow = () => {
 
 const MIN_BUF_SIZE = 512
 const FFT_SIZE = 8192
-const CQT = createCQT({binsPerOctave:127/Math.log2(20000/40)});
+const cqt = new CQT({bandsNumber:128});
 /** Cyclic Buffer for audio chunk processing */
-const CB = new Float32Array(CQT.requiredSamples,FFT_SIZE)
+const CB = new Float32Array(cqt.requiredSamples,FFT_SIZE)
 /** current CB cyclic buffer write position */
 let cbWritePos    = 0
 let totalSamples  = 0
-let cqtAwaitedSamples	= CQT.requiredSamples
+let cqtAwaitedSamples	= cqt.requiredSamples
 
 app.whenReady().then(() => {
 	LOGGER.log("App init started...","MAIN")
@@ -51,10 +51,10 @@ function processChunk(chunk) {
 		const mono  =(left+right)/2.0
 
 		CB[cbWritePos]=mono
-		cbWritePos = (cbWritePos+1)%CQT.requiredSamples
+		cbWritePos = (cbWritePos+1)%cqt.requiredSamples
 		totalSamples++
 
-		if (totalSamples>=CQT.requiredSamples) {
+		if (totalSamples>=cqt.requiredSamples) {
 			cqtAwaitedSamples--
 			if (cqtAwaitedSamples<=0) {
 				cqtAwaitedSamples = MIN_BUF_SIZE
@@ -70,35 +70,35 @@ function processSamples() {
 	if (performance.now() - lastTimeProcessed >= FRAME_INTERVAL) {
 		lastTimeProcessed = performance.now()
 		const samples = getOrderedSamples()
-		const magnitudes = Array.from(CQT.process(samples))
-		const db = getDecibels(magnitudes)
-		const normMag = getNormalizedMagnitudes(magnitudes)
+		const magnitudes = Array.from(cqt.process(samples))
 		const spectrum = {
-			freq: Array.from(CQT.frequencies),
-			magnitudes: magnitudes,
-			db: db,
-			nm: normMag
+			freq: Array.from(cqt.getFrequencies()),
+			mag: magnitudes,
+			db: getDecibels(magnitudes),
+			nm: getNormalizedMagnitudes(magnitudes),
+			ndb: getDecibels(getNormalizedMagnitudes(magnitudes))
 		}
 		sendSpectrum(spectrum)
+		
 	}
 }
 
 
 function getDecibels(mags) {
 	let db = []
-	for (mag of mags) db.push(20*Math.log10(mag))
+	for (let mag of mags) db.push(Math.max(0,Math.min(1, ((20*Math.log10(Math.max(mag,1e-8)))+80)/80)))
 	return db
 }
 function getNormalizedMagnitudes(mags) {
 	let nm = []
-	for (mag of mags) nm.push(mag * Math.pow(20000/1000,0.5))
+	for (let mag of mags) nm.push(mag * Math.pow(20000/1000,0.9))
 	return nm
 }
 
 
 function getOrderedSamples() {
-	const ordered = new Float32Array(CQT.requiredSamples)
-	const cyclicBufferStart = CQT.requiredSamples - cbWritePos
+	const ordered = new Float32Array(cqt.requiredSamples)
+	const cyclicBufferStart = cqt.requiredSamples - cbWritePos
 
 	ordered.set(CB.subarray(cbWritePos),0)
 	ordered.set(CB.subarray(0,cbWritePos), cyclicBufferStart)

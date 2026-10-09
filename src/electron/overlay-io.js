@@ -1,9 +1,11 @@
 import * as WS from "ws"
 import * as http from "http"
 import { GibbLogger } from './logger.js'
+import { CQT } from "./cqt.js"
 // import * as GibbLogger from "./logger"
 
 const LOGGER = new GibbLogger("OverlayIO")
+const cqt = new CQT()
 
 /** @namespace OverlayIO */
 var wss = null

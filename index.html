@@ -12,28 +12,71 @@
 <body style="background: black;margin: 0;">
 	<!-- <div id="app-structure-content-wrapper"></div> -->
 	<!-- <div id="app-structure-statusbar"></div> -->
+	<input id="freq-norm" type="range" max="1.0" min="0.0" oninput="updateNorm()" step="0.01">
+	<input id="freq-coef" type="range" max="2.0" min="0.0" oninput="updateNorm()" step="0.1">
+	<input id="gain" type="range" max="100.0" min="1.0" oninput="mult = this.value" step="0.1">
 	<canvas id="test" width="1024" height="900"></canvas>
 	<script defer>
 		var lastSpectrum = {}
+		var velocity = []
 		let canvas = document.getElementById("test") 
+		// let ctx = new CanvasRenderingContext2D()
 		let ctx = canvas.getContext("2d")
-		let width = 4
+		let smoothed = new Float32Array(128)
+		let width = 2
+		let atk=0.35
+		let rel=0.1
+		let mult = 5
 		window.audio.onSpectrum((spectrum)=>{
 			lastSpectrum = spectrum
-			canvas.width = viewport.segments[0].width - 4
-			canvas.height = viewport.segments[0].height - 4
+			canvas.width = viewport.segments[0].width - 40
+			canvas.height = viewport.segments[0].height - 40
 			ctx.clearRect(0,0,canvas.getBoundingClientRect().width,canvas.getBoundingClientRect().height)
+			ctx.fillStyle = "white"
+			for (let i = 0; i<spectrum.mag.length;i++){
+				let db = norm(spectrum.mag[i], spectrum.freq[i])*mult
+				let coef = db > smoothed[i]?atk:rel
+				smoothed[i]+=(db-smoothed[i])*coef
+			}
+			// ctx.fillText("magnitude", 4, 16)
+			// var i = 0
+			// for (let mag of spectrum.mag){
+			// 	ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),8+16,width,mag*(canvas.getBoundingClientRect().height - 64)/4)
+			// 	i++
+			// }
+			// ctx.fillText("normalized magnitude", 4, (canvas.getBoundingClientRect().height - 64)/4+16)
+			// var i = 0
+			// for (let mag of spectrum.nm){
+			// 	ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),(canvas.getBoundingClientRect().height - 64)/4+16+8,width,mag*(canvas.getBoundingClientRect().height - 64)/4)
+			// 	i++
+			// }
+			// ctx.fillText("decibels", 4, (canvas.getBoundingClientRect().height - 64)/2+16)
+			// var i = 0
+			// for (let mag of spectrum.db){
+			// 	ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),(canvas.getBoundingClientRect().height - 64)/2+16+8,width,mag*(canvas.getBoundingClientRect().height - 64)/4)
+			// 	i++
+			// }
 			var i = 0
-			for (let mag of spectrum.nm){
-			// 	let vol = spectrum[k].val
-				ctx.fillStyle = "white"
-			// 	// ctx.fillStyle = spectrum[k].color
-				ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),4,width,mag*canvas.getBoundingClientRect().height)
-				// ctx.fillText(`I:${i} - freq: ${k} - lf: ${spectrum[k].lf.toFixed(2)} - hf: ${spectrum[k].hf.toFixed(2)}${spectrum[k].af?" - af: "+spectrum[k].af:""}`,vol*canvas.getBoundingClientRect().width/5, i*8+8)
-			// 	// ctx.fillText(`I: ${i}`,vol*canvas.getBoundingClientRect().width*20, i*8+4)
+			for (let mag of smoothed){
+				ctx.fillStyle = `rgb(255.0,${255.0*(1-(mag*0.5))},${255.0*(1-mag)})`
+				ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),4,width,mag*(canvas.getBoundingClientRect().height - 64)/4)
+				ctx.translate(4+i*(canvas.width/spectrum.freq.length)+4, 8)
+				ctx.rotate(90 * Math.PI / 180)
+				ctx.fillText(`db: ${((1-spectrum.db[i])*-80).toFixed(2)} - freq: ${Math.round(spectrum.freq[i])}`, 0, 0)
+				ctx.setTransform(1, 0, 0, 1, 0, 0);
 				i++
 			}
 		})
+		let ncoef = 0.35
+		let nfreq = 1000
+		function updateNorm() {
+			nfreq = 40*Math.pow(20000/40,document.getElementById("freq-norm").value)
+			ncoef = document.getElementById("freq-coef").value
+			console.log(nfreq, ncoef)
+		}
+		function norm(val, mf) {
+			return val * Math.pow(mf/nfreq,ncoef)
+		}
 	</script>
 </body>
 </html>
