@@ -4,24 +4,31 @@
 	<meta charset="UTF-16">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<link rel="stylesheet" href="assets/styles/variables.css">
-	<link rel="stylesheet" href="assets/styles/structure.css">
+	<!-- <link rel="stylesheet" href="assets/styles/variables.css"> -->
+	<!-- <link rel="stylesheet" href="assets/styles/structure.css"> -->
 
 	<title>GibbMeOverlay</title>
 </head>
-<body>
-	<div id="app-structure-content-wrapper"></div>
-	<div id="app-structure-statusbar"></div>
-	<canvas id="test" width="1920" height="600" ></canvas>
+<body style="background: black;">
+	<!-- <div id="app-structure-content-wrapper"></div> -->
+	<!-- <div id="app-structure-statusbar"></div> -->
+	<canvas id="test" width="1024" height="900"></canvas>
 	<script defer>
+		var lastSpectrum = {}
 		let canvas = document.getElementById("test") 
 		let ctx = canvas.getContext("2d")
 		window.audio.onSpectrum((spectrum)=>{
-			ctx.clearRect(0,0,1920,600)
+			lastSpectrum = spectrum
+			ctx.clearRect(0,0,1024,900)
 			var i = 0
 			for (let k in spectrum){
-				let vol = spectrum[k]
-				ctx.fillRect(i,0,i+1,vol*600)
+				let vol = spectrum[k].val
+				if (i==0) console.log(vol)
+				ctx.fillStyle = "white"
+				// ctx.fillStyle = spectrum[k].color
+				ctx.fillRect(0,i*6,vol*canvas.getBoundingClientRect().width*20,4)
+				// ctx.fillText(`I:${i} - freq: ${k} - lf: ${spectrum[k].lf.toFixed(2)} - hf: ${spectrum[k].hf.toFixed(2)}${spectrum[k].af?" - af: "+spectrum[k].af:""}`,vol*canvas.getBoundingClientRect().width*20, i*16+8)
+				ctx.fillText(`I: ${i}`,vol*canvas.getBoundingClientRect().width*20, i*6+3)
 				i++
 			}
 			Object.keys(spectrum).forEach((freq)=>{
