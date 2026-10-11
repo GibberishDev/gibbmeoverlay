@@ -4,6 +4,7 @@ import { GibbLogger } from './src/electron/logger.js'
 import loopback from "loopback-capture"
 import { fileURLToPath } from 'url'
 import { CQT } from './src/electron/cqt.js'
+import { getPIDInfo } from './src/electron/user-audio-manager.js'
 
 const LOGGER = new GibbLogger("GibbMeOverlay")
 const capture = new loopback.LoopbackCapture()
@@ -37,8 +38,19 @@ app.whenReady().then(() => {
 	LOGGER.log("App init started...","MAIN")
 	createWindow()
 	// startWebSocketServer()
-	capture.startSystemAudio(processChunk)
+	// capture.startSystemAudio(processChunk)
+	startCapture()
+	// capture.start()
 })
+
+async function startCapture() {
+	getPIDInfo().then((data)=>{
+		for (let appData of data) {
+			if (appData.binary==='yandexmusic') capture.start(appData.pid, true, processChunk)
+			break;
+		}
+	})
+}
 
 function processChunk(chunk) {
 	/** Bytes per chunk frame. for 16bit interleaved stream its 16bit left+ 16bit right for total of 4 bytes*/
