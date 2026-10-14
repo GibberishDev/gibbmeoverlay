@@ -1,6 +1,6 @@
 {
   "name": "gibbmeoverlay",
-  "version": "0.0.1",
+  "version": "0.0.1-A",
   "description": "Light weight app for localhosting livestream overlays from HTML with different services integration",
   "license": "LGPL-3.0-or-later",
   "author": "GibbDev",
@@ -13,8 +13,10 @@
     "electron": "^44.5.1"
   },
   "dependencies": {
+    "@twurple/api": "^8.2.0",
+    "@twurple/auth": "^8.2.0",
+    "@twurple/eventsub-ws": "^8.2.0",
     "loopback-capture": "^3.0.2",
-    "tmi.js": "^1.8.5",
     "ws": "^8.22.0",
     "youtube-chat": "^2.2.0"
   }

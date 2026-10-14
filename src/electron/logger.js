@@ -1,6 +1,6 @@
 /** @namespace GibbLogger */
 
-export let registeredLoggers = []
+export let registeredLoggers = {}
 
 export class GibbLogger {
 
@@ -8,8 +8,14 @@ export class GibbLogger {
 	loggerHistory = []
 
 	constructor(namespace) {
-		this.namespace = namespace
-		registeredLoggers.push(this)
+		if (typeof(namespace) != 'string') throw new TypeError(`Invalid namespace to create a new logger. Must be of type String, provided: ${typeof namespace}`)
+		if (Object.keys(registeredLoggers).includes(namespace)) {
+			return registeredLoggers[namespace]
+		} else {
+			this.namespace = namespace
+			registeredLoggers[namespace] = this
+			return this
+		}
 	}
 	log(message,marker="") {
 		if (message == "") return;
