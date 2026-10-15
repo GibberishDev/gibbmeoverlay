@@ -4,49 +4,24 @@
 	<meta charset="UTF-16">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- <link rel="stylesheet" href="assets/styles/variables.css"> -->
-	<!-- <link rel="stylesheet" href="assets/styles/structure.css"> -->
+	<link rel="stylesheet" href="assets/styles/variables.css">
+	<link rel="stylesheet" href="assets/styles/structure.css">
+
+	<script src="./src/renderer/icon_element.js"></script>
 
 	<title>GibbMeOverlay</title>
 </head>
-<body style="background: black;margin: 0;">
-	<!-- <div id="app-structure-content-wrapper"></div> -->
-	<!-- <div id="app-structure-statusbar"></div> -->
-	<canvas id="test" width="1024" height="900"></canvas>
-	<script defer>
-		var lastSpectrum = {}
-		var velocity = []
-		let canvas = document.getElementById("test") 
-		// let ctx = new CanvasRenderingContext2D()
-		let ctx = canvas.getContext("2d")
-		let smoothed = new Float32Array(128)
-		let width = 2
-		let atk=0.35
-		let rel=0.1
-		let mult = 100
-		window.audio.onSpectrum((spectrum)=>{
-			lastSpectrum = spectrum
-			canvas.width = viewport.segments[0].width - 4
-			canvas.height = viewport.segments[0].height - 4
-			ctx.clearRect(0,0,canvas.getBoundingClientRect().width,canvas.getBoundingClientRect().height)
-			ctx.fillStyle = "white"
-			for (let i = 0; i<spectrum.mag.length;i++){
-				let db = norm(spectrum.mag[i], spectrum.freq[i])*mult
-				let coef = db > smoothed[i]?atk:rel
-				smoothed[i]+=(db-smoothed[i])*coef
-			}
-			var i = 0
-			for (let mag of smoothed){
-				ctx.fillStyle = `rgb(255.0,${255.0*(1-(mag*0.5))},${255.0*(1-mag)})`
-				ctx.fillRect(4+i*(canvas.width/spectrum.freq.length),canvas.getBoundingClientRect().height/2-(mag*(canvas.getBoundingClientRect().height - 64)/8),width,mag*(canvas.getBoundingClientRect().height - 64)/4)
-				i++
-			}
-		})
-		let ncoef = 0.2
-		let nfreq = 1200
-		function norm(val, mf) {
-			return Math.min(val + val * Math.pow(mf/nfreq,ncoef), val)
-		}
-	</script>
+<body>
+	<div id="app-structure-content-wrapper">
+
+	</div>
+	<div id="app-structure-statusbar">
+		<div id="service-icons">
+			<icon-element class="twitch-icon" icon-id="icon.service.twitch"></icon-element>
+			<icon-element class="yt-icon" icon-id="icon.service.youtube"></icon-element>
+		</div>
+	</div>
+	
 </body>
 </html>
+<icon>

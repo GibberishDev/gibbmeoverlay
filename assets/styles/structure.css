@@ -6,6 +6,11 @@ body {
 	height: 100dvh;
 }
 
+icon-element .icon {
+	height: 100%;
+	width: 100%;
+}
+
 #app-structure-content-wrapper {
 	flex-grow: 1;
 	background-color: var(--var-color-theme-dark-bg-darkest);
@@ -19,4 +24,31 @@ body {
 	background-color: var(--var-color-theme-dark-bg-darkest);
 	border: 2px solid var(--var-color-theme-dark-bg-dark);
 	box-sizing: border-box;
+}
+#service-icons {
+	display: flex;
+	flex-direction: row;
+	align-items: end;
+	position: relative;
+	right: 0;
+	padding: 2px;
+	gap: 2px;
+}
+.twitch-icon {
+	height: 22px;
+	aspect-ratio: 1;
+	fill: var(--var-color-theme-dark-bg-dark);
+	transition-duration: 150ms;
+}
+.twitch-icon:hover {
+	fill: rebeccapurple
+}
+.yt-icon {
+	height: 22px;
+	aspect-ratio: 1;
+	fill: var(--var-color-theme-dark-bg-dark);
+	transition-duration: 150ms;
+}
+.yt-icon:hover {
+	fill: red
 }

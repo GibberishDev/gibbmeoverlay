@@ -7,3 +7,7 @@ contextBridge.exposeInMainWorld("audio",{
 		})
 	}
 })
+
+contextBridge.exposeInMainWorld("iconManager",{
+	getIcon: (id)=>ipcRenderer.invoke('getIcon',[id])
+})

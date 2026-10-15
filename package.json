@@ -3,21 +3,47 @@
   "version": "0.0.1-A",
   "description": "Light weight app for localhosting livestream overlays from HTML with different services integration",
   "license": "LGPL-3.0-or-later",
-  "author": "GibbDev",
+  "author": "GibbDev <gibberishdevelopment@gmail.com> (https://github.com/gibberishdev)",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "electron --trace-warnings ."
+    "start": "electron --trace-warnings .",
+    "build-linux":"electron-builder -l"
   },
   "devDependencies": {
-    "electron": "^44.5.1"
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
   },
   "dependencies": {
     "@twurple/api": "^8.2.0",
     "@twurple/auth": "^8.2.0",
     "@twurple/eventsub-ws": "^8.2.0",
     "loopback-capture": "^3.0.2",
-    "ws": "^8.22.0",
-    "youtube-chat": "^2.2.0"
-  }
+    "ws": "^8.22.0"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  },
+  "desktopName":"gibbdev.gibbmeoverlay",
+  "build": {
+    "appId" : "gibbdev.gibbmeoverlay",
+    "icon":"./icon.svg",
+    "linux" : {
+      "target":["appImage","deb","rpm"],
+      "category":"Game;AudioVideo",
+      "synopsis":"Livestreamer suite for twitch/youtube",
+			"syncDesktopName": true,
+      "desktop":{
+        "entry":{
+          "Name":"GibbMeOverlay",
+          "Comment":"Livestreamer suite for twitch/youtube",
+          "Categories":"Games;Internet;Multimedia",
+          "Keywords":"Live;Twitch;Youtube;OBS;Overlay;Stream;Livestream;Streamer;Livestreamer;",
+          "Type":"Application",
+          "Terminal":false
+        }
+      }
+    }
+  },
+  "postinstall": "electron-builder install-app-deps"
 }

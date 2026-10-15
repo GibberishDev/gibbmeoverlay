@@ -183,7 +183,6 @@ class CommonAccount {
 				expires: Date.now()+res.expires_in*1000,
 				scopes:res.scopes
 			}
-			LOGGER.log(`Refreshed tokens for ${this.type} account`,"Auth")
 			return true
 		} else {
 			return false
