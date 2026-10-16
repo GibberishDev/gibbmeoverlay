@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256px" height="256px" viewBox="0 0 256 256" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:grid x="0" y="0" width="32" height="32" divisions="8"/>
+    <linearGradient bx:pinned="true" id="color-0">
+      <stop style="stop-color: #12c2e9;" offset="0"/>
+      <stop style="stop-color: #c471ed;" offset="0.5"/>
+      <stop style="stop-color: #f64f59;" offset="1"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="135.01" y1="60.67" x2="135.01" y2="163.06" id="gradient-0" gradientTransform="matrix(0.91311, -0.75008, 1.89556, 0.90964, -200.31315, 109.27013)">
+      <stop style="stop-color: #12c2e9;" offset="0"/>
+      <stop style="stop-color: #c471ed;" offset="0.33"/>
+      <stop style="stop-color: #f64f59;" offset="1"/>
+    </linearGradient>
+    <linearGradient bx:pinned="true" id="color-1">
+      <stop style="stop-color: #8360c3;" offset="0"/>
+      <stop style="stop-color: #2ebf91;" offset="1"/>
+    </linearGradient>
+    <linearGradient id="color-1-0" href="#color-1" gradientUnits="userSpaceOnUse" x1="101.4" y1="0" x2="101.4" y2="17.6" gradientTransform="matrix(1.00187, -0.00554, -0.00002, 5.59383, -4.40959, -4.6763)"/>
+    <linearGradient id="color-1-1" href="#color-1" gradientUnits="userSpaceOnUse" x1="82.4" y1="0" x2="82.4" y2="17.6" gradientTransform="matrix(0.99233, 0.02185, -0.00002, 5.59382, -9.93509, -29.75725)"/>
+    <linearGradient id="color-1-2" href="#color-1" gradientUnits="userSpaceOnUse" x1="120.42" y1="0" x2="120.42" y2="17.6" gradientTransform="matrix(1.00244, -0.00726, 0.00003, 5.59383, 1.81795, -49.23557)"/>
+    <linearGradient id="color-1-3" href="#color-1" gradientUnits="userSpaceOnUse" x1="101.4" y1="0" x2="101.4" y2="17.6" gradientTransform="matrix(1.00479, -0.01437, -0.00001, 5.5938, -4.70612, -70.85292)"/>
+    <style bx:fonts="JetBrains Mono">@import url(https://fonts.googleapis.com/css2?family=JetBrains+Mono%3Aital%2Cwght%400%2C100..800%3B1%2C100..800&amp;display=swap);</style>
+    <path id="text-path-0" d="M 29.53 123.21 C 29.53 123.21 196.54 187.21 196.54 187.21"/>
+    <bx:export>
+      <bx:file format="png" dpi="256" width="32" height="32" antialiasing="true">
+        <bx:variant scale="2" suffix="x64"/>
+        <bx:variant suffix="x32"/>
+        <bx:variant scale="4" suffix="x128"/>
+        <bx:variant scale="8" suffix="x256"/>
+      </bx:file>
+    </bx:export>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, -4.69796, 3.95654)">
+    <g transform="matrix(1, 0, 0, 1, -27.29976, 24.26646)">
+      <title>monitor</title>
+      <rect style="stroke: rgb(0, 0, 0); stroke-width: 4px; fill: url(&quot;#gradient-0&quot;); transform-origin: 135.02px 111.87px;" x="33.75" y="60.67" width="202.53" height="102.39" rx="4" ry="4" transform="matrix(0.94803, 0.31819, 0, 1.05482, 24.98246, -22.08613)"/>
+      <path style="" d="M 116 160.06 L 120 161.56 L 144 154.53 L 152 157.53 L 176 182.5 L 180 184 L 156 151.02 L 156 143.02 L 140 137.04 L 140 145.04 L 116 160.06 Z"/>
+    </g>
+    <text style="font-family: &quot;JetBrains Mono&quot;; font-size: 75.87px; font-weight: 800; letter-spacing: -5.5px; white-space: pre;" transform="matrix(1, 0, 0.38088, 1, -39.14381, -31.1689)"><textPath href="#text-path-0" startOffset="-1">GMO</textPath></text>
+    <g transform="matrix(1, 0, 0, 1, -27.30188, 21.03535)">
+      <title>chat-bubbles</title>
+      <rect x="67.6" width="67.6" height="17.6" style="stroke: rgb(0, 0, 0); stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; fill: url(&quot;#color-1-0&quot;);" transform="matrix(0.94664, 0.32228, 0, 1.05636, 114.50851, 50.13719)" rx="3.32" ry="3.32">
+        <title>bubble</title>
+      </rect>
+      <rect x="54.93" width="54.93" height="17.6" style="stroke: rgb(0, 0, 0); stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; fill: url(&quot;#color-1-1&quot;);" transform="matrix(0.94664, 0.32228, 0, 1.05636, 129.79643, 82.4351)" rx="3.32" ry="3.32">
+        <title>bubble</title>
+      </rect>
+      <rect x="80.28" width="80.28" height="17.6" style="stroke: rgb(0, 0, 0); stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; fill: url(&quot;#color-1-2&quot;);" transform="matrix(0.94664, 0.32228, 0, 1.05636, 76.14685, 92.92231)" rx="3.32" ry="3.32">
+        <title>bubble</title>
+      </rect>
+      <rect x="67.6" width="67.6" height="17.6" style="stroke: rgb(0, 0, 0); stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; fill: url(&quot;#color-1-3&quot;);" transform="matrix(0.94664, 0.32228, 0, 1.05636, 88.86285, 130.99159)" rx="3.32" ry="3.32">
+        <title>bubble</title>
+      </rect>
+    </g>
+  </g>
+</svg>

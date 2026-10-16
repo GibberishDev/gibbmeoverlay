@@ -8,11 +8,12 @@
   "main": "index.js",
   "scripts": {
     "start": "electron --trace-warnings .",
-    "build-linux":"electron-builder -l"
+    "build-linux": "electron-builder -l"
   },
   "devDependencies": {
     "electron": "^44.5.1",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "jsdoc": "^4.0.5"
   },
   "dependencies": {
     "@twurple/api": "^8.2.0",
@@ -24,23 +25,28 @@
   "allowScripts": {
     "electron-winstaller@5.4.0": true
   },
-  "desktopName":"gibbdev.gibbmeoverlay",
+  "desktopName": "gibbdev.gibbmeoverlay",
   "build": {
-    "appId" : "gibbdev.gibbmeoverlay",
-    "icon":"./icon.svg",
-    "linux" : {
-      "target":["appImage","deb","rpm"],
-      "category":"Game;AudioVideo",
-      "synopsis":"Livestreamer suite for twitch/youtube",
-			"syncDesktopName": true,
-      "desktop":{
-        "entry":{
-          "Name":"GibbMeOverlay",
-          "Comment":"Livestreamer suite for twitch/youtube",
-          "Categories":"Games;Internet;Multimedia",
-          "Keywords":"Live;Twitch;Youtube;OBS;Overlay;Stream;Livestream;Streamer;Livestreamer;",
-          "Type":"Application",
-          "Terminal":false
+    "appId": "gibbdev.gibbmeoverlay",
+    "icon": "./build/icons/icon.png",
+    "linux": {
+      "icon": "build/icons/icon-1024.png",
+      "target": [
+        "appImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Game;AudioVideo",
+      "synopsis": "Livestreamer suite for twitch/youtube",
+      "syncDesktopName": true,
+      "desktop": {
+        "entry": {
+          "Name": "GibbMeOverlay",
+          "Comment": "Livestreamer suite for twitch/youtube",
+          "Categories": "Games;Internet;Multimedia",
+          "Keywords": "Live;Twitch;Youtube;OBS;Overlay;Stream;Livestream;Streamer;Livestreamer;",
+          "Type": "Application",
+          "Terminal": false
         }
       }
     }

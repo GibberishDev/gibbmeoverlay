@@ -1,9 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, WebContentsView } from 'electron'
 import { startWebSocketServer } from "./src/electron/overlay-io.js"
 import { GibbLogger } from './src/electron/logger.js'
 import { fileURLToPath } from 'url'
 import { TwitchAuthProvider } from './src/electron/twitch-auth-manager.js'
 import { registeredIcons } from './src/electron/icon_manager.js'
+import { sendSystemNotification } from './src/electron/notification.js'
 
 import * as IconRegister from './src/registers/icons.js' 
 // import loopback from "loopback-capture"
@@ -19,8 +20,11 @@ const createWindow = () => {
 		width: 900,
 		height: 600,
 		roundedCorners: false,
+		icon:fileURLToPath(new URL('./build/icons/icon.png',import.meta.url)),
 		webPreferences:{
-			preload:fileURLToPath(new URL('./preload.js',import.meta.url))
+			preload:fileURLToPath(new URL('./preload.js',import.meta.url)),
+			contextIsolation:true,
+			nodeIntegration:false
 		}
 	})
 	win.menuBarVisible = false
@@ -33,11 +37,13 @@ app.whenReady().then(() => {
 	IconRegister.register()
 	createWindow()
 	TwitchAuthProvider.init()
+	sendSystemNotification()
 	// startWebSocketServer()
 	// capture.startSystemAudio(processChunk)
 })
 
-function getIconHandler(_, id) {
+function getIconHandler(event, id) {
+	console.log(event)
 	return registeredIcons[id]
 }
 
