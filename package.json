@@ -20,7 +20,8 @@
     "@twurple/auth": "^8.2.0",
     "@twurple/eventsub-ws": "^8.2.0",
     "loopback-capture": "^3.0.2",
-    "ws": "^8.22.0"
+    "ws": "^8.22.0",
+    "youtubei.js": "^18.1.0"
   },
   "allowScripts": {
     "electron-winstaller@5.4.0": true

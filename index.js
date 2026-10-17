@@ -5,8 +5,10 @@ import { fileURLToPath } from 'url'
 import { TwitchAuthProvider } from './src/electron/twitch-auth-manager.js'
 import { registeredIcons } from './src/electron/icon_manager.js'
 import { sendSystemNotification } from './src/electron/notification.js'
+import * as fs from 'fs'
 
 import * as IconRegister from './src/registers/icons.js' 
+import path from 'path'
 // import loopback from "loopback-capture"
 // import { CQT } from './src/electron/cqt.js'
 // import { getPIDInfo } from './src/electron/user-audio-manager.js'
@@ -32,6 +34,27 @@ const createWindow = () => {
 	WINDOW = win
 }
 
+/**
+ * Moves session data to user's temp location and places a note in config directory about that
+ */
+function redirectPaths() {
+	let newSessionPath = path.join(app.getPath('temp'),"gibbmeoverlay")
+	if (!fs.existsSync(newSessionPath)) {
+		fs.mkdirSync(newSessionPath)
+	}
+	app.setPath("sessionData",newSessionPath)
+	if (!fs.existsSync(path.join(app.getPath('userData'),"LookingForSomething.txt"))) {
+		fs.writeFile(
+			path.join(app.getPath('userData'),"LookingForSomething.txt"),
+			`If you are looking for session storage data I moved it to Temp location on your system.\nThere is little to no reason for average user to have it in same folder as user configs.\nIf you disagree with that decision you can change that behavior in app settings and it will take effect on next app restart\n	- GibbDev`,
+			{encoding:"utf-8"},
+			()=>{}
+		)
+	}
+}
+
+redirectPaths()
+
 app.whenReady().then(() => {
 	LOGGER.log("App init started...","MAIN")
 	IconRegister.register()
@@ -43,7 +66,6 @@ app.whenReady().then(() => {
 })
 
 function getIconHandler(event, id) {
-	console.log(event)
 	return registeredIcons[id]
 }
 
