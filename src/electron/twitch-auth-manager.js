@@ -13,7 +13,7 @@ class TwitchAuth {
 	clientID = "gxx65s9oinob982866o38ipol8izd8"
 	tokenPath = path.join(
 		app.getPath('appData'),
-		'gibbmeoverlay','twitch-tokens.enc'
+		'gibbmeoverlay','tw-tokens.enc'
 	)
 	streamerAccount = null
 	botAccount = null
@@ -45,6 +45,7 @@ class TwitchAuth {
 		let tokens = {}
 		if (this.streamerAccount.authenticated) tokens.streamer=this.streamerAccount.tokenData
 		if (this.botAccount.authenticated) tokens.bot = this.botAccount.tokenData
+		await fs.mkdir(path.dirname(this.tokenPath), {recursive: true})
 		const encrypted = safeStorage.encryptString(JSON.stringify(tokens))
 		await fs.writeFile(this.tokenPath, encrypted)
 	}
@@ -59,25 +60,11 @@ class TwitchAuth {
 			return null
 		}
 	}
-
 	async authorizeStreamer(onDeviceInfo=(deviceCode, url)=>{}) {
-		LOGGER.log("Authorizing new streamer account...", "Auth")
-		let result = await this.streamerAccount.authorizeDevice(onDeviceInfo)
-		if (result) {
-			LOGGER.log("Authenticated Streamer account successfully","Auth")
-			this.saveTokens()
-		}
-		else {LOGGER.error("Failed Streamer account authentication")}
+		if (await this.streamerAccount.authorizeDevice(onDeviceInfo)) this.saveTokens()
 	}
-
 	async authorizeBot(onDeviceInfo=(deviceCode, url)=>{}) {
-		LOGGER.log("Authorizing new Bot account...", "Auth")
-		let result = await this.botAccount.authorizeDevice(onDeviceInfo)
-		if (result) {
-			LOGGER.log("Authenticated Bot account successfully","Auth")
-			this.saveTokens()
-		}
-		else {LOGGER.error("Failed Bot account authentication")}
+		if (await this.botAccount.authorizeDevice(onDeviceInfo)) this.saveTokens()
 	}
 
 }
@@ -209,6 +196,7 @@ class CommonAccount {
 	}
 
 	async authorizeDevice(onDeviceInfo=(code, url)=>{}) {
+		LOGGER.log(`Authorizing new ${this.type} account...`, "Auth")
 		const device = await this.postForm(
 			TW_OAUTH_URL+'device',
 			{
@@ -237,6 +225,7 @@ class CommonAccount {
 				this.tokenData.refreshToken= res.refresh_token
 				this.tokenData.expires = Date.now()+res.expires_in*1000
 				this.authenticated = true
+				LOGGER.log(`Authenticated ${this.type} account successfully`,"Auth")
 				return true
 			} catch (err) {
 				if (err.message){

@@ -9,6 +9,7 @@ import * as fs from 'fs'
 
 import * as IconRegister from './src/registers/icons.js' 
 import path from 'path'
+import { YoutubeAuthProvider } from './src/electron/youtube-auth-manager.js'
 // import loopback from "loopback-capture"
 // import { CQT } from './src/electron/cqt.js'
 // import { getPIDInfo } from './src/electron/user-audio-manager.js'
@@ -59,11 +60,16 @@ app.whenReady().then(() => {
 	LOGGER.log("App init started...","MAIN")
 	IconRegister.register()
 	createWindow()
-	TwitchAuthProvider.init()
-	sendSystemNotification()
+	authServices()
 	// startWebSocketServer()
 	// capture.startSystemAudio(processChunk)
 })
+
+async function authServices() {
+	await TwitchAuthProvider.init()
+	await YoutubeAuthProvider.init()
+	if (YoutubeAuthProvider.streamerAccount.authenticated) YoutubeAuthProvider.streamerAccount.yt.account.getInfo(true).then((info)=>{console.log(info)})
+}
 
 function getIconHandler(event, id) {
 	return registeredIcons[id]
