@@ -131,11 +131,11 @@ async function getPlayerMetadata(playerId) {
 	let data = {
 		player: playerId,
 		playerName: await getMediaPlayerName(playerId),
-		length: Number(meta.Metadata.value['mpris:length'].value??0)/1000, //dividing cus its in microseconds
-		album: meta.Metadata.value['xesam:album'].value??null,
-		title: meta.Metadata.value['xesam:title'].value??null,
-		artists: meta.Metadata.value['xesam:artist'].value??[],
-		cover: meta.Metadata.value['mpris:artUrl'].value??null,
+		length: Number(meta.Metadata.value['mpris:length']?.value??0)/1000, //dividing cus its in microseconds
+		album: meta.Metadata.value['xesam:album']?.value??null,
+		title: meta.Metadata.value['xesam:title']?.value??null,
+		artists: meta.Metadata.value['xesam:artist']?.value??[],
+		cover: meta.Metadata.value['mpris:artUrl']?.value??null,
 		status: meta.PlaybackStatus.value,
 		position:Number(meta.Position.value??0)/1000
 	}
