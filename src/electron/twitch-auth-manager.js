@@ -1,6 +1,6 @@
 import { StaticAuthProvider } from '@twurple/auth'
 import { GibbLogger } from './logger.js'
-import { app, safeStorage, shell } from 'electron'
+import { app, safeStorage, session, BrowserWindow } from 'electron'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { ApiClient } from '@twurple/api'
@@ -62,9 +62,11 @@ class TwitchAuth {
 	}
 	async authorizeStreamer(onDeviceInfo=(deviceCode, url)=>{}) {
 		if (await this.streamerAccount.authorizeDevice(onDeviceInfo)) this.saveTokens()
+		if (twLoginWindow) twLoginWindow.close()
 	}
 	async authorizeBot(onDeviceInfo=(deviceCode, url)=>{}) {
 		if (await this.botAccount.authorizeDevice(onDeviceInfo)) this.saveTokens()
+		if (twLoginWindow) twLoginWindow.close()
 	}
 
 }
@@ -343,5 +345,29 @@ class BotAccount extends CommonAccount {
 		]
 	}
 }
+
+
+var twLoginWindow = null
+var twSession = null
+
+export async function openTWBrowserLogin(url) {
+	twSession = session.fromPartition(`tw-login-${Date.now()}`)
+	twLoginWindow = new BrowserWindow({
+		width:650,
+		height:650,
+		roundedCorners: false,
+		resizable: false,
+		webPreferences: {
+			session: twSession
+		}
+	})
+	twLoginWindow.menuBarVisible = false
+	await twLoginWindow.loadURL(url)
+	twLoginWindow.on("closed", ()=>{
+		twSession.clearData()
+		twLoginWindow = null
+	})
+}
+
 
 export const TwitchAuthProvider = new TwitchAuth()

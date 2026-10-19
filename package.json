@@ -16,6 +16,7 @@
     "jsdoc": "^4.0.5"
   },
   "dependencies": {
+    "@jellybrick/dbus-next": "^0.11.4",
     "@twurple/api": "^8.2.0",
     "@twurple/auth": "^8.2.0",
     "@twurple/eventsub-ws": "^8.2.0",

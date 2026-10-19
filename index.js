@@ -1,15 +1,19 @@
-import { app, BrowserWindow, ipcMain, WebContentsView } from 'electron'
+import { app, BrowserWindow, ipcMain, net, WebContentsView } from 'electron'
 import { startWebSocketServer } from "./src/electron/overlay-io.js"
 import { GibbLogger } from './src/electron/logger.js'
 import { fileURLToPath } from 'url'
-import { TwitchAuthProvider } from './src/electron/twitch-auth-manager.js'
+import { TwitchAuthProvider, openTWBrowserLogin } from './src/electron/twitch-auth-manager.js'
 import { registeredIcons } from './src/electron/icon_manager.js'
-import { sendSystemNotification } from './src/electron/notification.js'
+import { YoutubeAuthProvider, openYTBrowserLogin } from './src/electron/youtube-auth-manager.js'
 import * as fs from 'fs'
-
+import { MediaInfoInterface } from './src/electron/media-info.js'
 import * as IconRegister from './src/registers/icons.js' 
 import path from 'path'
-import { YoutubeAuthProvider } from './src/electron/youtube-auth-manager.js'
+
+
+
+
+// import { sendSystemNotification } from './src/electron/notification.js'
 // import loopback from "loopback-capture"
 // import { CQT } from './src/electron/cqt.js'
 // import { getPIDInfo } from './src/electron/user-audio-manager.js'
@@ -17,7 +21,7 @@ import { YoutubeAuthProvider } from './src/electron/youtube-auth-manager.js'
 const LOGGER = new GibbLogger("App")
 // const capture = new loopback.LoopbackCapture()
 var WINDOW
-
+var ytWin
 const createWindow = () => {
 	const win = new BrowserWindow({
 		width: 900,
@@ -57,18 +61,33 @@ function redirectPaths() {
 redirectPaths()
 
 app.whenReady().then(() => {
+	app.configureHostResolver({
+		secureDnsMode: 'secure',
+		secureDnsServers: [
+			'https://dns.google/dns-query'
+		]
+	})
 	LOGGER.log("App init started...","MAIN")
-	IconRegister.register()
-	createWindow()
-	authServices()
+	// IconRegister.register()
+	// createWindow()
+	getMediaInfo()
+	// authServices()
 	// startWebSocketServer()
 	// capture.startSystemAudio(processChunk)
 })
 
+async function getMediaInfo() {
+	let mii = new MediaInfoInterface()
+	mii.getPlayingMedia().then((info)=>{console.log(info)})
+}
+
 async function authServices() {
 	await TwitchAuthProvider.init()
 	await YoutubeAuthProvider.init()
-	if (YoutubeAuthProvider.streamerAccount.authenticated) YoutubeAuthProvider.streamerAccount.yt.account.getInfo(true).then((info)=>{console.log(info)})
+	TwitchAuthProvider.authorizeStreamer((code,url)=>{openTWBrowserLogin(url)})
+	// openBrowserLogin(YoutubeAuthProvider.streamerAccount)
+
+	// net.resolveHost('www.youtube.com').then((res)=>{console.log(res)})
 }
 
 function getIconHandler(event, id) {

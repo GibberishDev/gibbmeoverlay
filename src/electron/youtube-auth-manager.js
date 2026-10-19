@@ -1,5 +1,5 @@
 
-import { app, safeStorage, session } from 'electron'
+import { app, safeStorage, BrowserWindow, session } from 'electron'
 import { Innertube } from 'youtubei.js'
 import { GibbLogger } from './logger.js'
 import fs from 'node:fs/promises'
@@ -17,8 +17,8 @@ class YoutubeAuth {
 	botAccount = null
 
 	async init() {
-		this.streamerAccount = new YoutubeAccount('STREAMER')
-		this.botAccount = new YoutubeAccount('BOT')
+		this.streamerAccount = new YoutubeStreamerAccount()
+		this.botAccount = new YoutubeBotAccount()
 		LOGGER.log(`Authenticating youtube accounts...`,"Auth")
 		let tokenData = await this.loadTokens()
 		if (tokenData == null || Object.keys(tokenData).length==0) {
@@ -33,13 +33,13 @@ class YoutubeAuth {
 	async authorizeStreamer(token) {
 		this.streamerAccount.setToken(token)
 		let result = await this.streamerAccount.init()
-		if (result) this.saveTokens()
+		this.saveTokens()
 		return result
 	}
 	async authorizeBot(token) {
 		this.botAccount.setToken(token)
 		let result = await this.botAccount.init()
-		if (result) this.saveTokens()
+		this.saveTokens()
 		return result
 	}
 	async saveTokens() {
@@ -80,10 +80,15 @@ class YoutubeAccount {
 	async init() {
 		this.authenticated = false
 		this.yt = null
-		const yt = await Innertube.create({ cookie:this.token })
 		try {
-			await yt.account.getInfo()
-			this.yt = yt
+			this.yt = await Innertube.create({ cookie:this.token })
+		} catch (err) {
+			LOGGER.error(`Error while authenticating ${this.type} account: invalid token. Authenticate again: ${err}`,"Auth")
+			this.token = ""
+			return false
+		}
+		try {
+			await this.yt.account.getInfo()
 			this.authenticated = true
 			LOGGER.log(`Authenticated ${this.type} account successfully`,"Auth")
 			return true
@@ -111,5 +116,51 @@ class YoutubeBotAccount extends YoutubeAccount {
 	}
 }
 
+var ytLoginWindow = null
+var ytSession = null
+
+export async function openYTBrowserLogin(account) {
+	ytSession = session.fromPartition(`yt-login-${Date.now()}`)
+	ytLoginWindow = new BrowserWindow({
+		width:650,
+		height:650,
+		roundedCorners: false,
+		resizable: false,
+		webPreferences: {
+			session: ytSession
+		}
+	})
+	ytLoginWindow.menuBarVisible = false
+	await ytLoginWindow.loadURL("https://accounts.google.com/v3/signin/identifier?continue=https://www.youtube.com/signin?action_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3Dhttps%3A%2F%2Fwww.youtube.com%2F%3FthemeRefresh%3D1&ec=65620&hl=en&passive=true&service=youtube&uilel=3&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S621133160:1792354616533790")
+	ytLoginWindow.webContents.on('did-navigate', (ev, url)=>{handleYTLogInUrlChange(url, account)})
+	ytLoginWindow.on("closed", ()=>{ytSession.clearData()})
+}
+
+async function handleYTLogInUrlChange(url, account) {
+	if (url.startsWith("https://www.youtube.com/")) {
+		const cookiesAcc = await ytSession.cookies.get({
+			domain:'accounts.youtube.com'
+		})
+		const cookiesRegular = await ytSession.cookies.get({
+			domain:'youtube.com'
+		})
+		let cookies = {}
+		for (let cookieOBJ of cookiesAcc) {
+			cookies[cookieOBJ.name] = cookieOBJ.value
+		}
+		for (let cookieOBJ of cookiesRegular) {
+			cookies[cookieOBJ.name] = cookieOBJ.value
+		}
+		let tkn = []
+		for (let key of Object.keys(cookies)) {
+			tkn.push(`${key}=${cookies[key]}`)
+		}
+		let output = tkn.join("; ")
+		ytLoginWindow.close()
+		account.setToken(output)
+		account.init()
+		return
+	}
+}
 
 export const YoutubeAuthProvider = new YoutubeAuth()
