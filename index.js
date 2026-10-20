@@ -9,6 +9,7 @@ import * as fs from 'fs'
 import { MediaInfoInterface } from './src/electron/media-info.js'
 import * as IconRegister from './src/registers/icons.js' 
 import path from 'path'
+import { discoverPlugins } from './src/electron/plugin.js'
 
 
 
@@ -70,7 +71,8 @@ app.whenReady().then(() => {
 	LOGGER.log("App init started...","MAIN")
 	// IconRegister.register()
 	// createWindow()
-	getMediaInfo()
+	discoverPlugins()
+	// getMediaInfo()
 	// authServices()
 	// startWebSocketServer()
 	// capture.startSystemAudio(processChunk)
