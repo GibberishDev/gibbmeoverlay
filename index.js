@@ -47,7 +47,9 @@ const createLoadingCard = ()=>{
 		titleBarOverlay: false,
 		frame: false,
 		resizable: false,
-		roundedCorners: true
+		roundedCorners: true,
+		maximizable: false,
+		fullscreenable: false
 	})
   	let position = determine_screen_with_pointer_center()
 	position = {
@@ -91,12 +93,6 @@ redirectPaths()
 
 app.whenReady().then(() => {
 	createLoadingCard()
-	// app.configureHostResolver({
-	// 	secureDnsMode: 'secure',
-	// 	secureDnsServers: [
-	// 		'https://dns.google/dns-query'
-	// 	]
-	// })
 	// LOGGER.log("App init started...","MAIN")
 	// IconRegister.register()
 	// createWindow()

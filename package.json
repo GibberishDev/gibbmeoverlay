@@ -11,7 +11,7 @@
     "build-linux": "electron-builder -l"
   },
   "devDependencies": {
-    "electron": "^44.5.1",
+    "electron": "^45.1.0",
     "electron-builder": "^26.15.3",
     "jsdoc": "^4.0.5"
   },
