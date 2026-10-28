@@ -22,6 +22,7 @@ import { getPIDInfo } from './src/electron/user-audio-manager.js'
 const LOGGER = new GibbLogger("App")
 const capture = new loopback.LoopbackCapture()
 var WINDOW
+var LOADING_CARD_WINDOW
 var ytWin
 const createWindow = () => {
 	const win = new BrowserWindow({
@@ -35,6 +36,7 @@ const createWindow = () => {
 			nodeIntegration:false
 		}
 	})
+	win.hide()
 	win.menuBarVisible = false
 	win.loadFile('index.html')
 	WINDOW = win
@@ -47,9 +49,13 @@ const createLoadingCard = ()=>{
 		titleBarOverlay: false,
 		frame: false,
 		resizable: false,
-		roundedCorners: true,
 		maximizable: false,
-		fullscreenable: false
+		fullscreenable: false,
+		transparent: true,
+		roundedCorners: false,
+		webPreferences:{
+			devTools:false
+		}
 	})
   	let position = determine_screen_with_pointer_center()
 	position = {
@@ -58,6 +64,7 @@ const createLoadingCard = ()=>{
 	}
 	win.setPosition(position.x, position.y)
 	win.loadFile("./loading.html")
+	LOADING_CARD_WINDOW = win
 }
 
 
@@ -93,15 +100,19 @@ redirectPaths()
 
 app.whenReady().then(() => {
 	createLoadingCard()
-	// LOGGER.log("App init started...","MAIN")
-	// IconRegister.register()
-	// createWindow()
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setVer(${app.getVersion()})`)
+	LOADING_CARD_WINDOW.webContents.executeJavaScript("setText(\"App init started...\")")
+	LOGGER.log("App init started...","MAIN")
+	IconRegister.register()
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Registered ${Object.keys(registeredIcons).length} icons...")`)
 
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Registered ${Object.keys(registeredIcons).length} icons...")`)
 	// discoverPlugins()
-	// getMediaInfo()
-	// authServices()
-	// startWebSocketServer()
-	// capture.startSystemAudio(processChunk)
+	authServices()
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Starting Websocket...")`)
+	startWebSocketServer()
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Almost there...")`)
+	createWindow()
 })
 
 
@@ -130,11 +141,9 @@ async function getMediaInfo() {
 
 async function authServices() {
 	await TwitchAuthProvider.init()
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating Twitch...")`)
 	await YoutubeAuthProvider.init()
-	TwitchAuthProvider.authorizeStreamer((code,url)=>{openTWBrowserLogin(url)})
-	// openBrowserLogin(YoutubeAuthProvider.streamerAccount)
-
-	// net.resolveHost('www.youtube.com').then((res)=>{console.log(res)})
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating YouTube...")`)
 }
 
 function getIconHandler(event, id) {
