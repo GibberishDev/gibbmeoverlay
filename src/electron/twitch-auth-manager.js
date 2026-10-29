@@ -46,14 +46,14 @@ class TwitchAuth {
 		if (this.streamerAccount.authenticated) tokens.streamer=this.streamerAccount.tokenData
 		if (this.botAccount.authenticated) tokens.bot = this.botAccount.tokenData
 		await fs.mkdir(path.dirname(this.tokenPath), {recursive: true})
-		const encrypted = safeStorage.encryptString(JSON.stringify(tokens))
+		const encrypted = await safeStorage.encryptStringAsync(JSON.stringify(tokens))
 		await fs.writeFile(this.tokenPath, encrypted)
 	}
 	async loadTokens() {
 		try {
 			const encrypted = await fs.readFile(this.tokenPath)
 			LOGGER.log(`Loaded twitch auth tokens`, "Auth")
-			return JSON.parse(safeStorage.decryptString(encrypted))
+			return JSON.parse((await safeStorage.decryptStringAsync(encrypted)).result)
 		} catch(err) {
 			if (err.code==='ENOENT') {return null}
 			LOGGER.error(`Error loading saved tokens from disk. ${err}`,"Auth")

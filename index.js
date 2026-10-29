@@ -9,6 +9,7 @@ import * as fs from 'fs'
 import { MediaInfoInterface } from './src/electron/media-info.js'
 import * as IconRegister from './src/registers/icons.js' 
 import path from 'path'
+import * as BootStrap from './src/electron/bootstrap.js'
 // import { discoverPlugins } from './src/electron/plugin.js'
 
 
@@ -98,15 +99,14 @@ function redirectPaths() {
 
 redirectPaths()
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	createLoadingCard()
-	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setVer(${app.getVersion()})`)
-	LOADING_CARD_WINDOW.webContents.executeJavaScript("setText(\"App init started...\")")
+	await BootStrap.initApp(LOADING_CARD_WINDOW)
+	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setVer("${app.getVersion()}")`)
 	LOGGER.log("App init started...","MAIN")
 	IconRegister.register()
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Registered ${Object.keys(registeredIcons).length} icons...")`)
 
-	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Registered ${Object.keys(registeredIcons).length} icons...")`)
 	// discoverPlugins()
 	authServices()
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Starting Websocket...")`)
@@ -144,6 +144,7 @@ async function authServices() {
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating Twitch...")`)
 	await YoutubeAuthProvider.init()
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating YouTube...")`)
+	// openYTBrowserLogin(YoutubeAuthProvider.streamerAccount)
 }
 
 function getIconHandler(event, id) {

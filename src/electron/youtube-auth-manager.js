@@ -6,6 +6,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 const LOGGER = new GibbLogger('YouTube')
+var AuthManager
 
 class YoutubeAuth {
 	tokenPath = path.join(
@@ -17,6 +18,7 @@ class YoutubeAuth {
 	botAccount = null
 
 	async init() {
+		AuthManager = this
 		this.streamerAccount = new YoutubeStreamerAccount()
 		this.botAccount = new YoutubeBotAccount()
 		LOGGER.log(`Authenticating youtube accounts...`,"Auth")
@@ -47,14 +49,14 @@ class YoutubeAuth {
 		if (this.streamerAccount?.authenticated) tokens.streamer = {token: this.streamerAccount.token}
 		if (this.botAccount?.authenticated) tokens.bot = {token: this.botAccount.token}
 		await fs.mkdir(path.dirname(this.tokenPath), {recursive: true})
-		const encrypted = safeStorage.encryptString(JSON.stringify(tokens))
+		const encrypted = await safeStorage.encryptStringAsync(JSON.stringify(tokens))
 		await fs.writeFile(this.tokenPath, encrypted)
 	}
 	async loadTokens() {
 		try {
 			const encrypted = await fs.readFile(this.tokenPath)
 			LOGGER.log(`Loaded youtube auth tokens`, "Auth")
-			return JSON.parse(safeStorage.decryptString(encrypted))
+			return JSON.parse((await safeStorage.decryptStringAsync(encrypted)).result)
 		} catch(err) {
 			if (err.code==='ENOENT') {return null}
 			LOGGER.error(`Error loading saved tokens from disk. ${err}`,"Auth")
@@ -91,6 +93,7 @@ class YoutubeAccount {
 			await this.yt.account.getInfo()
 			this.authenticated = true
 			LOGGER.log(`Authenticated ${this.type} account successfully`,"Auth")
+			AuthManager.saveTokens()
 			return true
 		} catch (err) {
 			LOGGER.error(`Error while authenticating ${this.type} account: ${err?.message}`,"Auth")
