@@ -1,30 +1,21 @@
 import { app, BrowserWindow, ipcMain, net, WebContentsView, screen } from 'electron'
-import { startWebSocketServer } from "./src/electron/overlay-io.js"
+import { startWebSocketServer } from "./src/electron/overlay_io.js"
 import { GibbLogger } from './src/electron/logger.js'
 import { fileURLToPath } from 'url'
-import { TwitchAuthProvider, openTWBrowserLogin } from './src/electron/twitch-auth-manager.js'
+import { TwitchAuthProvider, openTWBrowserLogin } from './src/electron/twitch_auth_manager.js'
 import { registeredIcons } from './src/electron/icon_manager.js'
-import { YoutubeAuthProvider, openYTBrowserLogin } from './src/electron/youtube-auth-manager.js'
+import { YoutubeAuthProvider, openYTBrowserLogin } from './src/electron/youtube_auth_manager.js'
 import * as fs from 'fs'
-import { MediaInfoInterface } from './src/electron/media-info.js'
 import * as IconRegister from './src/registers/icons.js' 
 import path from 'path'
 import * as BootStrap from './src/electron/bootstrap.js'
 // import { discoverPlugins } from './src/electron/plugin.js'
 
-
-
-
-// import { sendSystemNotification } from './src/electron/notification.js'
-import loopback from "loopback-capture"
-import { CQT } from './src/electron/cqt.js'
-import { getPIDInfo } from './src/electron/user-audio-manager.js'
-
 const LOGGER = new GibbLogger("App")
-const capture = new loopback.LoopbackCapture()
 var WINDOW
 var LOADING_CARD_WINDOW
-var ytWin
+
+
 const createWindow = () => {
 	const win = new BrowserWindow({
 		width: 900,
@@ -77,7 +68,6 @@ function determine_screen_with_pointer_center() {
     return screen_center
 }
 
-
 /**
  * Moves session data to user's temp location and places a note in config directory about that
  */
@@ -116,35 +106,12 @@ app.whenReady().then(async () => {
 })
 
 
-function float32ToInt16PCM(floatBuffer) {
-  if (floatBuffer.length % 4 !== 0) {
-    throw new Error("Buffer length must be divisible by 4");
-  }
-  const sampleCount = floatBuffer.length / 4;
-  const pcm16 = Buffer.allocUnsafe(sampleCount * 2);
-  for (let i = 0; i < sampleCount; i++) {
-    let sample = floatBuffer.readFloatLE(i * 4);
-    sample = Math.max(-1, Math.min(1, sample));
-    const int16 = sample < 0
-      ? Math.round(sample * 32768)
-      : Math.round(sample * 32767);
-    pcm16.writeInt16LE(int16, i * 2);
-  }
-  return pcm16;
-}
-
-
-async function getMediaInfo() {
-	let mii = new MediaInfoInterface()
-	mii.getPlayingMedia().then((info)=>{console.log(info)})
-}
 
 async function authServices() {
 	await TwitchAuthProvider.init()
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating Twitch...")`)
 	await YoutubeAuthProvider.init()
 	LOADING_CARD_WINDOW.webContents.executeJavaScript(`setText("Authenticating YouTube...")`)
-	// openYTBrowserLogin(YoutubeAuthProvider.streamerAccount)
 }
 
 function getIconHandler(event, id) {
@@ -157,80 +124,3 @@ ipcMain.handle('getIcon', getIconHandler)
 
 app.on("before-quit",()=>{
 })
-
-// #region audio spectrum
-const MIN_BUF_SIZE = 512
-const FFT_SIZE = 8192
-const cqt = new CQT({bandsNumber:128});
-/** Cyclic Buffer for audio chunk processing */
-const CB = new Float32Array(cqt.requiredSamples,FFT_SIZE)
-/** current CB cyclic buffer write position */
-let cbWritePos    = 0
-let totalSamples  = 0
-let cqtAwaitedSamples	= cqt.requiredSamples
-const FRAME_INTERVAL = 1000/144
-let lastTimeProcessed = 0
-
-function processChunk(chunk) {
-	/** Bytes per chunk frame. for 16bit interleaved stream its 16bit left+ 16bit right for total of 4 bytes*/
-	const BPF   = 4
-	const BYTES = chunk.length-(chunk.length%BPF)
-
-	for (let offset=0;offset<BYTES;offset+=BPF) {
-		const left  =chunk.readInt16LE(offset)/32768
-		const right =chunk.readInt16LE(offset)/32768
-		const mono  =(left+right)/2.0
-
-		CB[cbWritePos]=mono
-		cbWritePos = (cbWritePos+1)%cqt.requiredSamples
-		totalSamples++
-
-		if (totalSamples>=cqt.requiredSamples) {
-			cqtAwaitedSamples--
-			if (cqtAwaitedSamples<=0) {
-				cqtAwaitedSamples = MIN_BUF_SIZE
-				processSamples()
-			}
-		}
-	}
-}
-function processSamples() {
-	if (performance.now() - lastTimeProcessed >= FRAME_INTERVAL) {
-		lastTimeProcessed = performance.now()
-		const samples = getOrderedSamples()
-		const magnitudes = Array.from(cqt.process(samples))
-		const spectrum = {
-			freq: Array.from(cqt.getFrequencies()),
-			mag: magnitudes,
-			db: getDecibels(magnitudes),
-			nm: getNormalizedMagnitudes(magnitudes),
-			ndb: getDecibels(getNormalizedMagnitudes(magnitudes))
-		}
-		sendSpectrum(spectrum)
-		
-	}
-}
-function getDecibels(mags) {
-	let db = []
-	for (let mag of mags) db.push(Math.max(0,Math.min(1, ((20*Math.log10(Math.max(mag,1e-8)))+80)/80)))
-	return db
-}
-function getNormalizedMagnitudes(mags) {
-	let nm = []
-	for (let mag of mags) nm.push(mag * Math.pow(20000/1000,0.9))
-	return nm
-}
-function getOrderedSamples() {
-	const ordered = new Float32Array(cqt.requiredSamples)
-	const cyclicBufferStart = cqt.requiredSamples - cbWritePos
-
-	ordered.set(CB.subarray(cbWritePos),0)
-	ordered.set(CB.subarray(0,cbWritePos), cyclicBufferStart)
-
-	return ordered
-}
-function sendSpectrum(spectrum) {
-	console.log(spectrum)
-	// WINDOW.webContents.send('spectrum', spectrum)
-}
-// #endregion

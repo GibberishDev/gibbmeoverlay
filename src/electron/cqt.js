@@ -100,35 +100,3 @@ export class CQT {
 		return Float32Array.from(this.bins, b=>b.freq)
 	}
 }
-
-// export function createCQT({
-// }={}) {
-// 	const maxWindow = Math.max(...bands.map(b => b.length));
-
-// 	function process(samples) {
-// 		if (samples.length < maxWindow) throw new Error(`CQT needs at least ${maxWindow} samples while only ${samples.length} provided`);
-
-// 		const output = new Float32Array(bands.length);
-
-// 		for (let k = 0; k < bands.length; k++) {
-// 			const band = bands[k]
-// 			const offset = samples.length - band.length;
-// 			let re = 0, im = 0
-// 			for (let n = 0; n < band.length; n++) {
-// 				const x = samples[offset + n]
-// 				re += x * band.cos[n]
-// 				im -= x * band.sin[n]
-// 			}
-
-// 			output[k] = Math.hypot(re, im) * band.scale
-// 		}
-
-// 		return output;
-// 	}
-
-// 	return {
-// 		frequencies: Float32Array.from(bands, b => b.freq),
-// 		requiredSamples: maxWindow,
-// 		process,
-// 	};	
-// }
